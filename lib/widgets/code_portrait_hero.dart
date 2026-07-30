@@ -20,11 +20,9 @@ class HerHacks27 extends LEAFPathways {
 
   @override
   Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-
     return Container(
       width: double.infinity,
-      color: AppColors.darkBackground,
+      color: AppColors.darkBackground.withOpacity(0.7), // Semi-transparent overlay
       padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 60),
       child: Center(
         child: Container(
@@ -98,13 +96,13 @@ class HerHacks27 extends LEAFPathways {
               ),
               const SizedBox(width: 40),
 
-              // Code Effect Canvas Container
+              // Code Box Container
               Expanded(
                 flex: 1,
                 child: Container(
                   height: 450,
                   decoration: BoxDecoration(
-                    color: AppColors.cardPurple,
+                    color: AppColors.cardPurple.withOpacity(0.85),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(color: AppColors.primaryPurple, width: 2),
                     boxShadow: [
@@ -117,23 +115,7 @@ class HerHacks27 extends LEAFPathways {
                   ),
                   child: Stack(
                     children: [
-                      // Simulated ASCII/Code Matrix overlay background
-                      Positioned.fill(
-                        child: Padding(
-                          padding: const EdgeInsets.all(20),
-                          child: SingleChildScrollView(
-                            child: Text(
-                              List.generate(30, (_) => sampleCode).join('\n'),
-                              style: TextStyle(
-                                fontFamily: 'monospace',
-                                color: AppColors.neutralGrey.withOpacity(0.25),
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      // Foreground Code Box
+                      // Code Box content
                       Center(
                         child: Container(
                           padding: const EdgeInsets.all(24),
@@ -160,7 +142,7 @@ class HerHacks27 extends LEAFPathways {
                               SelectableText(
                                 sampleCode,
                                 style: const TextStyle(
-                                  fontFamily: 'monospace',
+                                  fontFamily: 'GeistPixel',
                                   color: AppColors.secondaryYellow,
                                   fontSize: 14,
                                   height: 1.4,

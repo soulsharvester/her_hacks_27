@@ -17,6 +17,7 @@ class MissionSection extends StatelessWidget {
               const Text(
                 'OUR MISSION',
                 style: TextStyle(
+                  fontFamily: 'CalSans',
                   color: AppColors.secondaryYellow,
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -26,7 +27,7 @@ class MissionSection extends StatelessWidget {
               const SizedBox(height: 12),
               const Text(
                 'Empowering Tomorrow\'s Innovators Today',
-                style: TextStyle(color: Colors.white, fontSize: 32, fontWeight: FontWeight.bold),
+                style: TextStyle(color: Colors.white, fontFamily: 'CalSans', fontSize: 32, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 40),
               Row(
