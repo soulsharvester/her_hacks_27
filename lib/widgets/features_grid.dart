@@ -6,56 +6,75 @@ class FeaturesGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 900;
+
+    const items = [
+      _GridItem(
+        icon: Icons.memory,
+        title: 'COLLABORATE & BUILD',
+        description:
+        'Working in small teams of 1-4 people, you will scope a problem based on a theme, develop an innovative solution, and build a prototype.',
+      ),
+      _GridItem(
+        icon: Icons.code,
+        title: 'DEVELOPMENT CYCLE',
+        description:
+        'Gain hands-on experience across the entire product development cycle before presenting your work to a panel of judges.',
+      ),
+      _GridItem(
+        icon: Icons.people_outline,
+        title: 'MENTORSHIP',
+        description:
+        'Get direct access to industry professionals and technical mentors throughout the 12-hour building window.',
+      ),
+      _GridItem(
+        icon: Icons.emoji_events_outlined,
+        title: 'PRIZES',
+        description:
+        'Compete for prizes across multiple categories. Every submission gets hands-on feedback from industry professionals.',
+      ),
+    ];
+
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 40),
-      color: Colors.black.withOpacity(0.6),
+      padding: EdgeInsets.symmetric(
+        vertical: isMobile ? 40 : 80,
+        horizontal: isMobile ? 20 : 40,
+      ),
+      color: AppColors.neutralGrey.withOpacity(0.4),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
-          decoration: BoxDecoration(border: Border.all(color: Colors.white12, width: 1)),
-          //Border.all(),
-          child: Column(
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white12, width: 1),
+          ),
+          child: isMobile
+              ? Column(
+            children: items.map((item) {
+              return Container(
+                decoration: const BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(color: Colors.white12, width: 1),
+                  ),
+                ),
+                child: item,
+              );
+            }).toList(),
+          )
+              : Column(
             children: [
               Row(
-                children: const [
-                  Expanded(
-                    child: _GridItem(
-                      icon: Icons.memory,
-                      title: 'COLLABORATE & BUILD',
-                      description:
-                      'Working in small teams of 1-4 people, you will scope a problem based on a theme, develop an innovative solution, and build a prototype.',
-                    ),
-                  ),
-                  Expanded(
-                    child: _GridItem(
-                      icon: Icons.code,
-                      title: 'DEVELOPMENT CYCLE',
-                      description:
-                      'Gain hands-on experience across the entire product development cycle before presenting your work to a panel of judges.',
-                    ),
-                  ),
+                children: [
+                  Expanded(child: items[0]),
+                  Expanded(child: items[1]),
                 ],
               ),
               const Divider(height: 1, color: Colors.white12),
               Row(
-                children: const [
-                  Expanded(
-                    child: _GridItem(
-                      icon: Icons.people_outline,
-                      title: 'MENTORSHIP',
-                      description:
-                      'Get direct access to industry professionals and technical mentors throughout the 12-hour building window.',
-                    ),
-                  ),
-                  Expanded(
-                    child: _GridItem(
-                      icon: Icons.emoji_events_outlined,
-                      title: 'PRIZES',
-                      description:
-                      'Compete for prizes across multiple categories. Every submission gets hands-on feedback from industry professionals.',
-                    ),
-                  ),
+                children: [
+                  Expanded(child: items[2]),
+                  Expanded(child: items[3]),
                 ],
               ),
             ],
@@ -79,8 +98,11 @@ class _GridItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 900;
+
     return Container(
-      padding: const EdgeInsets.all(40),
+      padding: EdgeInsets.all(isMobile ? 24 : 40),
       decoration: BoxDecoration(
         border: Border.all(color: Colors.white12, width: 0.5),
       ),
@@ -91,9 +113,9 @@ class _GridItem extends StatelessWidget {
           const SizedBox(height: 20),
           Text(
             title,
-            style: const TextStyle(
+            style: TextStyle(
               fontFamily: 'CalSans',
-              fontSize: 22,
+              fontSize: isMobile ? 18 : 22,
               color: Colors.white,
               letterSpacing: 1.1,
             ),
