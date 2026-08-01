@@ -4,8 +4,13 @@ import '../constants/app_colors.dart';
 
 class CodeMatrixBackground extends StatefulWidget {
   final Widget child;
+  final ScrollController scrollController;
 
-  const CodeMatrixBackground({super.key, required this.child});
+  const CodeMatrixBackground({
+    super.key,
+    required this.child,
+    required this.scrollController,
+  });
 
   @override
   State<CodeMatrixBackground> createState() => _CodeMatrixBackgroundState();
@@ -13,140 +18,173 @@ class CodeMatrixBackground extends StatefulWidget {
 
 class _CodeMatrixBackgroundState extends State<CodeMatrixBackground>
     with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  final List<CodeColumn> _columns = [];
+  late AnimationController _ticker;
+  final List<CodeRowData> _rows = [];
   final Random _random = Random();
+
+  double _lastScrollOffset = 0.0;
+  double _scrollVelocity = 0.0;
+  double _accumulatedOffset = 0.0;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 12),
-    )..repeat();
 
-    // Generate falling streams
-    for (int i = 0; i < 25; i++) {
-      _columns.add(CodeColumn(
-        xRatio: i / 25.0,
-        speed: 0.15 + _random.nextDouble() * 0.35,
-        length: 6 + _random.nextInt(8),
-        offset: _random.nextDouble(),
-      ));
+    _ticker = AnimationController(
+      vsync: this,
+      duration: const Duration(days: 365),
+    )..addListener(_onTick)..forward();
+
+    widget.scrollController.addListener(_onScroll);
+
+    // Populate rows with exact CodeRowData model
+    for (int i = 0; i < 35; i++) {
+      _rows.add(
+        CodeRowData(
+          rowyRatio: i / 35.0,
+          baseSpeed: 0.3 + _random.nextDouble() * 0.4,
+          direction: i % 2 == 0 ? 1 : -1,
+          seedOffset: _random.nextDouble() * 2000,
+          wordCount: 8,
+        ),
+      );
     }
+  }
+
+  void _onScroll() {
+    if (!widget.scrollController.hasClients) return;
+    final currentOffset = widget.scrollController.offset;
+    final delta = (currentOffset - _lastScrollOffset).abs();
+    _scrollVelocity = delta * 0.15;
+    _lastScrollOffset = currentOffset;
+  }
+
+
+
+  void _onTick() {
+    if (!mounted) return;
+    setState(() {
+      _scrollVelocity *= 0.92;
+      _accumulatedOffset += 0.8 + _scrollVelocity;
+    });
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _ticker.dispose();
+    widget.scrollController.removeListener(_onScroll);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _controller,
-      builder: (context, child) {
-        return CustomPaint(
-          foregroundPainter: CodeMatrixPainter(
-            columns: _columns,
-            progress: _controller.value,
-          ),
-          child: widget.child,
-        );
-      },
+    return CustomPaint(
+      painter: OptimizedMatrixPainter(
+        rows: _rows,
+        offset: _accumulatedOffset,
+      ),
+      child: widget.child,
     );
   }
 }
 
-class CodeColumn {
-  final double xRatio;
-  final double speed;
-  final int length;
-  final double offset;
+class CodeRowData {
+  final double rowyRatio;
+  final double baseSpeed;
+  final int direction;
+  final double seedOffset;
+  final int wordCount;
 
-  CodeColumn({
-    required this.xRatio,
-    required this.speed,
-    required this.length,
-    required this.offset,
+  CodeRowData({
+    required this.rowyRatio,
+    required this.baseSpeed,
+    required this.direction,
+    required this.seedOffset,
+    required this.wordCount,
   });
 }
 
-class CodeMatrixPainter extends CustomPainter {
-  final List<CodeColumn> columns;
-  final double progress;
+class OptimizedMatrixPainter extends CustomPainter {
+  final List<CodeRowData> rows;
+  final double offset;
 
-  // Multilingual Code Keywords & Functions
-  static const List<String> codeKeywords = [
-    'print()',
-    '.upper()',
-    'console.log()',
-    'System.out.println()',
-    'std::cout',
-    'fmt.Println()',
-    'async/await',
-    'def',
-    'function',
-    'class',
-    'import',
-    'lambda',
-    'return',
-    'LEAF.hacks()',
-    'HerHacks27',
-    'uom.ac.uk',
-    'setState()',
-    'const',
-    'val',
-    'struct',
-    'fn main()',
+  static const List<String> keywords = [
+    'print("Hello, HerHacks!");',
+    'String name = text.toUpperCase();',
+    'console.log("Welcome to HerHacks");',
+    'System.out.println("Building the future");',
+    'std::cout << "HerHacks 2027" << std::endl;',
+    'fmt.Println("Empowering Women in STEM")',
+    'const data = await fetchData();',
+    'def main(): pass',
+    'function buildProject() {}',
+    'class Participant { final String name; }',
+    'import package:flutter/material.dart;',
+    'auto calculate = [](int x) { return x * 2; };',
+    'return Future.value(true);',
+    'LEAF.hacks(year: 2027);',
+    'HerHacks27 app = new HerHacks27();',
+    'final Uri url = Uri.parse("https://uom.ac.uk");',
+    'setState(() { isLoading = false; });',
+    'const double pi = 3.14159;',
+    'val title: String = "HerHacks"',
+    'struct Team { name: String, id: u32 }',
+    'fn main() { println!("Ready, set, hack!"); }',
   ];
 
-  CodeMatrixPainter({required this.columns, required this.progress});
+  static final Map<String, TextPainter> _textCache = {};
+
+  OptimizedMatrixPainter({required this.rows, required this.offset});
+
+  TextPainter _getTextPainter(String text, Color color) {
+    final key = '$text-${color.value}';
+    return _textCache.putIfAbsent(key, () {
+      final painter = TextPainter(
+        text: TextSpan(
+          text: text,
+          style: TextStyle(
+            fontSize: 12,
+            fontFamily: 'GeistPixel',
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      );
+      painter.layout();
+      return painter;
+    });
+  }
 
   @override
   void paint(Canvas canvas, Size size) {
-    final textStyle = const TextStyle(
-      fontSize: 12,
-      fontFamily: 'GeistPixel',
-      fontWeight: FontWeight.bold,
-    );
+    for (var r = 0; r < rows.length; r++) {
+      final row = rows[r];
+      final y = row.rowyRatio * size.height;
+      final rowTravel = size.width + 400;
 
-    for (var col in columns) {
-      final double x = col.xRatio * size.width;
-      final double totalTravel = size.height + (col.length * 40);
-      final double yHead = ((progress * col.speed * 2.5 + col.offset) % 1.0) * totalTravel - 100;
+      final rowMovement = offset * row.baseSpeed * row.direction;
 
-      for (int i = 0; i < col.length; i++) {
-        // Space out words vertically
-        final double y = yHead - (i * 26);
-        if (y < -20 || y > size.height) continue;
+      for (int i = 0; i < row.wordCount; i++) {
+        final rawX = ((rowMovement + row.seedOffset + (i * 220)) % rowTravel) - 200;
+        final x = row.direction == 1 ? rawX : size.width - rawX - 100;
 
-        // Head word glows yellow, trailing words fade in Manchester purple
-        final Color wordColor = (i == 0)
-            ? AppColors.secondaryYellow.withOpacity(0.17)
-            : AppColors.primaryPurple.withOpacity((1.0 - (i / col.length)) * 0.45);
+        if (x < -150 || x > size.width + 100) continue;
 
-        // Pick keywords based on column and depth
-        final wordIndex = (col.xRatio * 100 + i + (progress * 20).toInt()).toInt() % codeKeywords.length;
-        final word = codeKeywords[wordIndex];
+        final color = (i == 0)
+            ? AppColors.secondaryYellow.withOpacity(0.18)
+            : AppColors.primaryPurple.withOpacity((1.0 - (i / row.wordCount)) * 0.4);
 
-        final textSpan = TextSpan(
-          text: word,
-          style: textStyle.copyWith(color: wordColor),
-        );
-
-        final textPainter = TextPainter(
-          text: textSpan,
-          textDirection: TextDirection.ltr,
-        );
-
-        textPainter.layout();
-        textPainter.paint(canvas, Offset(x, y));
+        final word = keywords[(r + i) % keywords.length];
+        final painter = _getTextPainter(word, color);
+        painter.paint(canvas, Offset(x, y));
       }
     }
   }
 
   @override
-  bool shouldRepaint(covariant CodeMatrixPainter oldDelegate) => true;
+  bool shouldRepaint(covariant OptimizedMatrixPainter oldDelegate) {
+    return oldDelegate.offset != offset;
+  }
+
 }
