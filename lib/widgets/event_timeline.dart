@@ -16,30 +16,37 @@ class EventTimeline extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 900;
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 80, horizontal: 40),
+      padding: EdgeInsets.symmetric(
+        vertical: isMobile ? 40 : 80,
+        horizontal: isMobile ? 20 : 40,
+      ),
       child: Center(
         child: Container(
           constraints: const BoxConstraints(maxWidth: 1200),
-          child: Row(
+          child: Flex(
+            direction: isMobile ? Axis.vertical : Axis.horizontal,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Left Column: Title, Subtitle & Image Asset
+              // Left Column / Header Section
               Expanded(
-                flex: 1,
+                flex: isMobile ? 0 : 1,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'EVENT\nTIMELINE',
+                    Text(
+                      isMobile ? 'EVENT TIMELINE' : 'EVENT\nTIMELINE',
                       style: TextStyle(
                         fontFamily: 'CalSans',
-                        fontSize: 64,
+                        fontSize: isMobile ? 36 : 64,
                         color: Colors.white,
                         height: 1.0,
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                     const Text(
                       '12 HOURS OF BUILDING, FROM DOORS OPEN TO AWARDS CEREMONY.',
                       style: TextStyle(
@@ -49,66 +56,71 @@ class EventTimeline extends StatelessWidget {
                         height: 1.5,
                       ),
                     ),
-                    const SizedBox(height: 32),
 
-                    // Added Asset Image Container
-                    Container(
-                      height: 240,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        color: Colors.black26,
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.white12, width: 1),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.primaryPurple.withOpacity(0.2),
-                            blurRadius: 15,
-                            spreadRadius: 1,
+                    // Show image only on Desktop
+                    if (!isMobile) ...[
+                      const SizedBox(height: 32),
+                      Container(
+                        height: 240,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.black26,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(color: Colors.white12, width: 1),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.primaryPurple.withOpacity(0.2),
+                              blurRadius: 15,
+                              spreadRadius: 1,
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: Image.asset(
+                            'assets/images/womanExplainingLeaf.png',
+                            fit: BoxFit.contain,
                           ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: Image.asset(
-                          'assets/images/womanExplainingLeaf.png', // Change to any preferred PNG
-                          fit: BoxFit.contain,
                         ),
                       ),
-                    ),
+                    ],
                   ],
                 ),
               ),
 
-              const SizedBox(width: 60),
+              SizedBox(
+                width: isMobile ? 0 : 60,
+                height: isMobile ? 32 : 0,
+              ),
 
-              // Right Column: Timeline Items
+              // Right Column / Timeline Items
               Expanded(
-                flex: 1,
+                flex: isMobile ? 0 : 1,
                 child: Column(
                   children: schedule.map((item) {
                     final isHighlighted = item['time'] == '20:00';
                     return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Row(
                         children: [
                           const Icon(Icons.circle, color: AppColors.secondaryYellow, size: 8),
-                          const SizedBox(width: 24),
+                          SizedBox(width: isMobile ? 12 : 24),
                           Text(
                             item['time']!,
                             style: const TextStyle(
                               fontFamily: 'GeistPixel',
                               color: AppColors.secondaryYellow,
-                              fontSize: 16,
+                              fontSize: 14,
                             ),
                           ),
-                          const SizedBox(width: 32),
+                          SizedBox(width: isMobile ? 16 : 32),
                           Expanded(
                             child: Text(
                               item['event']!,
                               style: TextStyle(
                                 fontFamily: 'GeistPixel',
                                 color: isHighlighted ? AppColors.secondaryYellow : Colors.white,
-                                fontSize: 16,
+                                fontSize: isMobile ? 13 : 16,
                                 fontWeight: isHighlighted ? FontWeight.bold : FontWeight.normal,
                               ),
                             ),

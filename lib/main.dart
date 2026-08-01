@@ -31,45 +31,98 @@ class HerHacksApp extends StatelessWidget {
   }
 }
 
-class HerHacksLandingPage extends StatelessWidget {
+class HerHacksLandingPage extends StatefulWidget {
   const HerHacksLandingPage({super.key});
 
   @override
+  State<HerHacksLandingPage> createState() => _HerHacksLandingPageState();
+}
+
+class _HerHacksLandingPageState extends State<HerHacksLandingPage> {
+  late final ScrollController _scrollController;
+
+  final GlobalKey _aboutKey = GlobalKey();
+  final GlobalKey _timelineKey = GlobalKey();
+  final GlobalKey _locationKey = GlobalKey();
+  final GlobalKey _highlightsKey = GlobalKey();
+  final GlobalKey _sponsorsKey = GlobalKey();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  // Smooth scroll to target GlobalKey with Navbar height offset
+  void _scrollToSection(GlobalKey key) {
+    final targetContext = key.currentContext;
+    if (targetContext != null) {
+      final RenderBox renderBox = targetContext.findRenderObject() as RenderBox;
+      final position = renderBox.localToGlobal(Offset.zero);
+
+      final double currentScrollOffset = _scrollController.offset;
+      final bool isMobile = MediaQuery.of(context).size.width < 900;
+
+      // Fixed height clearance for sticky navbar (120px mobile / 90px desktop)
+      final double navbarOffset = isMobile ? 120.0 : 90.0;
+      final double targetOffset = currentScrollOffset + position.dy - navbarOffset;
+
+      _scrollController.animateTo(
+        targetOffset.clamp(0.0, _scrollController.position.maxScrollExtent),
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOutCubic,
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final double screenWidth = MediaQuery.of(context).size.width;
+    final bool isMobile = screenWidth < 900;
+
     return Scaffold(
       body: Stack(
         children: [
-          // 1. Matrix Code Animated Background
           CodeMatrixBackground(
+            scrollController: _scrollController,
             child: SingleChildScrollView(
+              controller: _scrollController,
               physics: const BouncingScrollPhysics(
                 parent: AlwaysScrollableScrollPhysics(),
               ),
               child: Column(
-                children: const [
-                  SizedBox(height: 80), // Buffer for top navbar
-                  CodePortraitHero(),
-                  FeaturesGrid(),
-                  EventTimeline(),
-                  LocationSection(),
-                  SponsorsSection(),
-                  Footer(),
+                children: [
+                  SizedBox(height: isMobile ? 120 : 80),
+                  CodePortraitHero(key: _aboutKey),
+                  FeaturesGrid(key: _highlightsKey),
+                  EventTimeline(key: _timelineKey),
+                  LocationSection(key: _locationKey),
+                  SponsorsSection(key: _sponsorsKey),
+                  const Footer(),
                 ],
               ),
             ),
           ),
 
-          // 2. Fixed Sticky Navigation Bar
           Positioned(
             top: 0,
             left: 0,
             right: 0,
             child: Navbar(
+              onAboutPressed: () => _scrollToSection(_aboutKey),
+              onTimelinePressed: () => _scrollToSection(_timelineKey),
+              onLocationPressed: () => _scrollToSection(_locationKey),
+              onHighlightsPressed: () => _scrollToSection(_highlightsKey),
+              onSponsorsPressed: () => _scrollToSection(_sponsorsKey),
+              onSponsorPressed: () => _scrollToSection(_sponsorsKey),
               onRegisterPressed: () {
-                // Trigger Registration action
-              },
-              onSponsorPressed: () {
-                // Trigger Sponsorship Prospectus action
+                _scrollToSection(_aboutKey);
               },
             ),
           ),
