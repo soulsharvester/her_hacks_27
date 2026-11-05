@@ -89,7 +89,6 @@ class Navbar extends StatelessWidget {
               ),
               const SizedBox(height: 12),
 
-              // Row 2: Responsive Wrap layout fitting all links without scrollbars
               Wrap(
                 alignment: WrapAlignment.center,
                 spacing: 4,
@@ -126,7 +125,7 @@ class Navbar extends StatelessWidget {
                   _navLink('About', onTap: onAboutPressed),
                   _navLink('Timeline', onTap: onTimelinePressed),
                   _navLink('Location', onTap: onLocationPressed),
-                  _navLink('Highlights', onTap: onHighlightsPressed),
+                  _navLink('Info', onTap: onHighlightsPressed),
                   _navLink('Sponsors', onTap: onSponsorsPressed),
                 ],
               ),
