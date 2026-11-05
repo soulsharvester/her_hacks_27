@@ -98,7 +98,7 @@ class Navbar extends StatelessWidget {
                   _navLink('About', onTap: onAboutPressed),
                   _navLink('Timeline', onTap: onTimelinePressed),
                   _navLink('Location', onTap: onLocationPressed),
-                  _navLink('Highlights', onTap: onHighlightsPressed),
+                  _navLink('Info', onTap: onHighlightsPressed),
                   _navLink('Sponsors', onTap: onSponsorsPressed),
                 ],
               ),
