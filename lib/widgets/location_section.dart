@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_timer_countdown/flutter_timer_countdown.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter/foundation.dart';
 import '../constants/app_colors.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:web/web.dart' as web;
+import 'dart:ui_web' as ui_web;
 
 class LocationSection extends StatelessWidget {
   const LocationSection({super.key});
@@ -48,7 +52,6 @@ class LocationSection extends StatelessWidget {
                 direction: isMobile ? Axis.vertical : Axis.horizontal,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Info Cards & Countdown
                   Expanded(
                     flex: isMobile ? 0 : 1,
                     child: Column(
@@ -58,7 +61,7 @@ class LocationSection extends StatelessWidget {
                           child: _infoCard(
                             icon: Icons.location_on_outlined,
                             title: 'ADA, NATIONAL COLLEGE FOR DIGITAL SKILLS',
-                            subtitle: 'VICTORIA, LONDON (CLICK TO VIEW MAP)',
+                            subtitle: 'VICTORIA, LONDON',
                             isMobile: isMobile,
                             isInteractive: true,
                           ),
@@ -80,79 +83,27 @@ class LocationSection extends StatelessWidget {
                     width: isMobile ? 0 : 40,
                     height: isMobile ? 24 : 0,
                   ),
+
                   Expanded(
                     flex: isMobile ? 0 : 1,
-                    child: GestureDetector(
-                      onTap: _openMap,
-                      child: Container(
-                        height: isMobile ? 240 : 340,
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: AppColors.cardPurple.withOpacity(0.5),
-                          border: Border.all(color: AppColors.secondaryYellow
-                              .withOpacity(0.3)),
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withOpacity(0.4),
-                              blurRadius: 10,
-                              spreadRadius: 2,
-                            ),
-                          ],
-                        ),
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            // Background styling to look like a map preview container
-                            Positioned.fill(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.black54,
-                                    border: Border.all(color: Colors.white12),
-                                  ),
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.map_outlined,
-                                      size: 64,
-                                      color: AppColors.secondaryYellow,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            // Action prompt overlay
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.8),
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                    color: AppColors.secondaryYellow),
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.open_in_new,
-                                      color: AppColors.secondaryYellow,
-                                      size: 16),
-                                  SizedBox(width: 8),
-                                  Text(
-                                    'OPEN IN GOOGLE MAPS',
-                                    style: TextStyle(
-                                      fontFamily: 'GeistPixel',
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            )
-                          ],
-                        ),
+                    child: Container(
+                      height: isMobile ? 240 : 340,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: AppColors.secondaryYellow
+                            .withOpacity(0.3)),
+                        borderRadius: BorderRadius.circular(12),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.4),
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                          ),
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: const InteractiveMapWidget(),
                       ),
                     ),
                   )
@@ -224,29 +175,6 @@ class LocationSection extends StatelessWidget {
     );
   }
 
-  static Widget _timerUnit(String val, String unit, bool isMobile) {
-    return Column(
-      children: [
-        Text(
-          val,
-          style: TextStyle(
-            fontFamily: 'CalSans',
-            fontSize: isMobile ? 24 : 32,
-            color: AppColors.secondaryYellow,
-          ),
-        ),
-        Text(
-          unit,
-          style: const TextStyle(
-            fontFamily: 'GeistPixel',
-            fontSize: 10,
-            color: AppColors.mutedText,
-          ),
-        ),
-      ],
-    );
-  }
-
 
   static Widget _countdownCard({required bool isMobile}) {
     final DateTime targetDate = DateTime(2027, 2, 1, 8, 0, 0);
@@ -288,11 +216,46 @@ class LocationSection extends StatelessWidget {
               color: AppColors.mutedText,
             ),
             onEnd: () {
-              debugPrint("Countdown ended!");
+              debugPrint("Event has already occured in Earths Timeline");
             },
           ),
         ],
       ),
     );
+  }
+}
+
+class InteractiveMapWidget extends StatelessWidget {
+  const InteractiveMapWidget({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    if (kIsWeb) {
+      const String viewId = 'google-maps-iframe-view';
+
+      ui_web.platformViewRegistry.registerViewFactory(
+        viewId,
+            (int id) {
+          final iframe = web.HTMLIFrameElement()
+            ..width = '100%'
+            ..height = '100%'
+            ..src = 'https://maps.google.com/maps?q=Ada+National+College+for+Digital+Skills+London&t=&z=14&ie=UTF8&iwloc=&output=embed';
+          iframe.style.border = 'none';
+          return iframe;
+        },
+      );
+
+      return const HtmlElementView(viewType: viewId);
+    } else {
+      return Container(
+        color: Colors.black54,
+        child: const Center(
+          child: Text(
+            'Im unsure of how you ended up getting this message. Email me at hamzasaifworking@gmail.com to fix',
+            style: TextStyle(color: AppColors.mutedText),
+          ),
+        ),
+      );
+    }
   }
 }

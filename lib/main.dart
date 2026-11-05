@@ -53,7 +53,6 @@ class _HerHacksLandingPageState extends State<HerHacksLandingPage> {
     _scrollController = ScrollController();
   }
 
-  // Smooth scroll to target GlobalKey with Navbar height offset
   void _scrollToSection(GlobalKey key) {
     final targetContext = key.currentContext;
     if (targetContext != null) {
