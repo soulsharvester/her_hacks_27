@@ -120,7 +120,6 @@ class HerHacks27 extends LEAFPathways {
                     ),
                     const SizedBox(height: 32),
 
-                    // Buttons: Stacked on Mobile, Row on Desktop
                     Flex(
                       direction: isMobile ? Axis.vertical : Axis.horizontal,
                       mainAxisSize:

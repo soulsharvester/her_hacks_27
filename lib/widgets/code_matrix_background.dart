@@ -37,7 +37,6 @@ class _CodeMatrixBackgroundState extends State<CodeMatrixBackground>
 
     widget.scrollController.addListener(_onScroll);
 
-    // Populate rows with exact CodeRowData model
     for (int i = 0; i < 35; i++) {
       _rows.add(
         CodeRowData(
@@ -172,8 +171,8 @@ class OptimizedMatrixPainter extends CustomPainter {
         if (x < -150 || x > size.width + 100) continue;
 
         final color = (i == 0)
-            ? AppColors.secondaryYellow.withOpacity(0.18)
-            : AppColors.primaryPurple.withOpacity((1.0 - (i / row.wordCount)) * 0.4);
+            ? AppColors.secondaryYellow.withOpacity(0.12)
+            : AppColors.primaryPurple.withOpacity((1.0 - (i / row.wordCount)) * 0.3);
 
         final word = keywords[(r + i) % keywords.length];
         final painter = _getTextPainter(word, color);
