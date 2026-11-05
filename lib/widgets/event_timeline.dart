@@ -79,7 +79,7 @@ class EventTimeline extends StatelessWidget {
                           borderRadius: BorderRadius.circular(16),
                           child: Image.asset(
                             'assets/images/womanExplainingLeaf.png',
-                            fit: BoxFit.contain,
+                            fit: BoxFit.cover,
                           ),
                         ),
                       ),
