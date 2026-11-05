@@ -1,38 +1,93 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="One-page presentation to the her hacks hacakthon for LEAF 2027.">
+  <meta name="description" content="Her Hacks '27 Landing Page">
 
-  <!-- iOS meta tags & icons -->
-  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="her_hacks_27">
+  <meta name="apple-mobile-web-app-title" content="Her Hacks '27">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
-  <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
 
-  <title>her_hacks_27</title>
+  <title>Her Hacks '27</title>
   <link rel="manifest" href="manifest.json">
+
+  <style>
+    /* Instant dark background matching AppColors.darkBackground to prevent white flash */
+    body {
+      background-color: #12031B;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #loading-indicator {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #F5F5F7;
+      transition: opacity 0.4s ease-out;
+    }
+
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 3px solid rgba(255, 204, 51, 0.2);
+      border-top-color: #FFCC33; /* AppColors.secondaryYellow */
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .loading-text {
+      color: #FFCC33;
+      font-size: 14px;
+      letter-spacing: 2px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
-  <script src="flutter_bootstrap.js" async></script>
+<!-- Native loading screen shown instantly -->
+<div id="loading-indicator">
+  <div class="spinner"></div>
+  <div class="loading-text">INITIALIZING HER HACKS '27...</div>
+</div>
+
+<!-- Standard Flutter Web entrypoint script -->
+<script src="main.dart.js" type="application/javascript"></script>
+
+<script>
+  // Automatically remove the loading screen once Flutter injects its first canvas/element
+  window.addEventListener('load', function() {
+    const observer = new MutationObserver(function(mutations, obs) {
+      // Check if Flutter has added a canvas or flutter-view to the body
+      const flutterView = document.querySelector('flutter-view') || document.querySelector('canvas');
+      if (flutterView) {
+        const loader = document.getElementById('loading-indicator');
+        if (loader) {
+          loader.style.opacity = '0';
+          setTimeout(() => loader.remove(), 400); // Smooth fade out
+        }
+        obs.disconnect(); // Stop observing once removed
+      }
+    });
+    observer.observe(document.body, { childList: true, subtree: true });
+  });
+</script>
 </body>
 </html>
