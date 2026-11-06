@@ -171,8 +171,8 @@ class OptimizedMatrixPainter extends CustomPainter {
         if (x < -150 || x > size.width + 100) continue;
 
         final color = (i == 0)
-            ? AppColors.secondaryYellow.withOpacity(0.12)
-            : AppColors.primaryPurple.withOpacity((1.0 - (i / row.wordCount)) * 0.3);
+            ? AppColors.secondaryYellow.withOpacity(0.05)
+            : AppColors.primaryPurple.withOpacity((1.0 - (i / row.wordCount)) * 0.15);
 
         final word = keywords[(r + i) % keywords.length];
         final painter = _getTextPainter(word, color);
